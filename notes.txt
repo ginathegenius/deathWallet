@@ -1,0 +1,11 @@
+Crypto-hodler passes away.
+
+1) Create private key that can withdraw funds.
+  - Private key can only withdraw after a certain number of blocks of inactivity.
+
+Users:
+- Parents
+- Non-crypto significat others / spouses
+- Crypto-nerd friends
+
+Tangent idea -> Keyfile + smart contract address
