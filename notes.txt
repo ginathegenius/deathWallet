@@ -1,7 +1,13 @@
-Crypto-hodler passes away.
+A multi-sig smart contract designed to disperse funds upon a crypto-hodler's death.
+
+Full delegates: additional keys held by the owner.
+Beneficiary delegates: keys held by the beneficiaries of the contract.
 
 1) Create private key that can withdraw funds.
   - Private key can only withdraw after a certain number of blocks of inactivity.
+
+Unlock functionality:
+  Beneficiary requests the wallet unlock, waits a specefied amount of time, if the owner does not decline, the wallet is unlocked to all beneficiaries.
 
 Users:
 - Parents
