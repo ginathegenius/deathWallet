@@ -1,7 +1,7 @@
 pragma solidity ^0.4.4;
 
 contract DeathWallet {
-	uint public balance;
+	uint public walletBalance;
 	mapping(address => Delegate) private delegates;
 	bool public isLocked = true;
 	uint public blocksUntilDeath = 1000;
@@ -13,6 +13,7 @@ contract DeathWallet {
 	struct Delegate {
 		delegateTypes delegateType;
 		uint8 distributionPercentage;
+		bool beenPaid;
 	}
 
 	event Transfer(address indexed _from, address indexed _to, uint256 _value);
@@ -49,8 +50,8 @@ contract DeathWallet {
 		lastTransactionBlock = block.number;
 	}
 
-	function getBalance() returns(uint) {
-		return balance;
+	function getWalletBalance() returns(uint) {
+		return walletBalance;
 	}
 
 	function addDelegate(address _delegate, delegateTypes _delegateType, uint8 _delegatePercent) atLeastFullDelegate {
@@ -63,6 +64,7 @@ contract DeathWallet {
 		Delegate memory d;
 		d.delegateType = _delegateType;
 		d.distributionPercentage = _delegatePercent;
+		d.beenPaid = false;
 		delegates[_delegate] = d;
 		lastTransactionBlock = block.number;
 	}
@@ -93,9 +95,9 @@ contract DeathWallet {
 	}
 
 	function withdraw(address _receiver, uint _amount) atLeastFullDelegate returns(bool sufficient) {
-		if (balance < _amount)
+		if (walletBalance < _amount)
 			return false;
-		balance -= _amount;
+		walletBalance -= _amount;
 		_receiver.transfer(_amount);
 		Transfer(msg.sender, _receiver, _amount);
 		lastTransactionBlock = block.number;
@@ -103,7 +105,13 @@ contract DeathWallet {
 	}
 
 	function inherit() atLeastBeneficiaryDelegate unlocked {
-
+		Delegate memory d = delegates[msg.sender];
+		require(!d.beenPaid);
+		uint inheritance = walletBalance / (100 / d.distributionPercentage);
+		assert(inheritance <= this.balance);
+		delegates[msg.sender].beenPaid = true;
+		msg.sender.transfer(inheritance);
+		Transfer(msg.sender, msg.sender, inheritance);
 	}
 
 	function unlock() atLeastBeneficiaryDelegate locked {
@@ -120,7 +128,7 @@ contract DeathWallet {
 	}
 
 	function () payable {
-		balance += msg.value;
+		walletBalance += msg.value;
 		Transfer(msg.sender, this, msg.value);
 		lastTransactionBlock = block.number;
 	}
